@@ -1,21 +1,24 @@
 // ignore_for_file: unused_element
 import 'package:flutter/material.dart';
+import 'package:flutter_tmdb_app/features/favorite/screens/favorites.dart';
+import '../../features/home/screens/home.dart';
 import 'route_names.dart';
 
 class AppRouter {
   static Route<dynamic> onGenerateRoutes(RouteSettings settings) {
     switch (settings.name) {
       case RouteNames.home:
-        final args = settings.arguments as Map<String, dynamic>?;
-        final loginModel = args?["loginModel"];
         return _fadeRoute(
           settings: settings,
-          view: Home(
-            loginModel: loginModel,
-          ),
+          view: const Home(),
         );
 
-      
+      case RouteNames.favorites:
+        return _slideRoute(
+          settings: settings,
+          view: const Favorites(),
+        );
+
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(
