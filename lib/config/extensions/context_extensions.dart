@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../items/colors/app_colors.dart';
-
 extension MediaQueryExtension on BuildContext {
   MediaQueryData get mediaQuery => MediaQuery.of(this);
 
@@ -136,5 +134,3 @@ extension StringExtension on BuildContext {
     }
   }
 }
-
-

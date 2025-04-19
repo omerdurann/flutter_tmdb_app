@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 enum ImageConstants {
-  eArsivLogo("e_arsiv_logo"),
+  example("example"),
   ;
 
   final String value;
