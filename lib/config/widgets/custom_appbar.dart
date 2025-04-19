@@ -44,20 +44,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
         ),
       ),
       automaticallyImplyLeading: false,
-      leading: widget.leading ?? const SizedBox(),
-      /* IconButton(
-            onPressed: () {
-              if (widget.onPressed != null) {
-                widget.onPressed();
-              }
-              Navigator.of(context).pop();
-            },
-            icon: Icon(
-              Icons.arrow_back_ios_new,
-              color: AppColors.primaryColor,
-              size: context.dynamicHeight(0.02),
-            ),
-          ), */
+      leading: widget.leading,
       actions: widget.actions,
     );
   }

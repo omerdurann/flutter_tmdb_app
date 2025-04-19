@@ -3,9 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_tmdb_app/config/extensions/context_extensions.dart';
 import 'package:flutter_tmdb_app/config/utility/enums/image_constants.dart';
+import 'package:flutter_tmdb_app/features/favorite/screens/favorites.dart';
 import '../../../config/items/colors/app_colors.dart';
 import '../../../config/widgets/custom_appbar.dart';
-import '../widgets/movie_grid_view.dart';
+import '../../../config/widgets/movie_grid_view.dart';
 import '../widgets/search_bar_widget.dart';
 
 class Home extends ConsumerStatefulWidget {
@@ -42,6 +43,10 @@ class _HomeState extends ConsumerState<Home> {
                 ),
                 onPressed: () {
                   print("Favoriler ikonuna tıklandı!");
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const Favorites()),
+                  );
                 },
                 tooltip: 'Favoriler',
               ),
@@ -50,11 +55,11 @@ class _HomeState extends ConsumerState<Home> {
         ),
       ),
       backgroundColor: AppColors.darkBackgroundColor,
-      body: const Column(
+      body: Column(
         children: [
-          SearchBarWidget(),
+          const SearchBarWidget(),
           Expanded(
-            child: MovieGridView(),
+            child: MovieGridView(movies: List.generate(6, (index) => index)),
           ),
         ],
       ),
