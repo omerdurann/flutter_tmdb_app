@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_tmdb_app/config/extensions/context_extensions.dart';
+import 'package:flutter_tmdb_app/config/utility/enums/image_constants.dart';
 import '../../../config/items/colors/app_colors.dart';
 import '../../../config/widgets/custom_appbar.dart';
 import '../widgets/movie_grid_view.dart';
@@ -23,10 +25,28 @@ class _HomeState extends ConsumerState<Home> {
         preferredSize: Size.fromHeight(
           context.dynamicHeight(0.07),
         ),
-        child: const CustomAppBar(
+        child: CustomAppBar(
           color: AppColors.darkBackgroundColor,
           titleColor: AppColors.whiteColor,
           title: "Ana Sayfa",
+          actions: [
+            Badge(
+              label: const Text('3'),
+              isLabelVisible: true,
+              offset: const Offset(-4, 4),
+              child: IconButton(
+                icon: SvgPicture.asset(
+                  ImageConstants.favorites.toSvg,
+                  color: AppColors.whiteColor,
+                  height: context.dynamicHeight(0.028),
+                ),
+                onPressed: () {
+                  print("Favoriler ikonuna tıklandı!");
+                },
+                tooltip: 'Favoriler',
+              ),
+            ),
+          ],
         ),
       ),
       backgroundColor: AppColors.darkBackgroundColor,

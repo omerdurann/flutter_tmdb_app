@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 enum ImageConstants {
-  favorites('favorites'),
+  favorites('video'),
   home('home'),
   ;
 

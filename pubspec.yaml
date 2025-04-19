@@ -44,7 +44,6 @@ dependencies:
   lottie: ^3.2.0
   flutter_riverpod: ^2.6.1
   toastification: ^2.3.0
-  get_it: ^8.0.3
 
 dev_dependencies:
   flutter_test:

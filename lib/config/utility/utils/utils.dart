@@ -1,8 +1,6 @@
-import 'dart:developer';
-import 'dart:io' show Platform;
+
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_tmdb_app/config/extensions/context_extensions.dart';
 
 import 'package:toastification/toastification.dart';
