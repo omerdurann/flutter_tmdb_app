@@ -152,70 +152,55 @@ class MovieDetailModel {
 
   factory MovieDetailModel.fromMap(Map<String, dynamic> map) {
     return MovieDetailModel(
-      adult: map['adult'] != null ? map['adult'] as bool : null,
-      backdropPath:
-          map['backdrop_path'] != null ? map['backdrop_path'] as String : null,
-      bellogsToCollection: map['belongs_to_collection'] != null
-          ? map['belongs_to_collection'] as String
+      adult: map['adult'] as bool?,
+      backdropPath: map['backdrop_path'] as String?,
+      // belongs_to_collection Map veya null olabilir. Map ise içinden 'name' alalım.
+      bellogsToCollection: map['belongs_to_collection'] is Map<String, dynamic>
+          ? (map['belongs_to_collection'] as Map<String, dynamic>)['name']
+              as String?
+          : null, // Map değilse veya null ise null ata
+      budget: map['budget'] as int?,
+      // Listeleri doğrudan map ile parse et, null kontrolleriyle
+      genres: map['genres'] is List
+          ? (map['genres'] as List<dynamic>)
+              .map((item) => GenresModel.fromMap(item as Map<String, dynamic>))
+              .toList()
           : null,
-      budget: map['budget'] != null ? map['budget'] as int : null,
-      genres: map['genres'] != null
-          ? List<GenresModel>.from(
-              (map['genres'] as List<int>).map<GenresModel?>(
-                (x) => GenresModel.fromMap(x as Map<String, dynamic>),
-              ),
-            )
+      homepage: map['homepage'] as String?,
+      id: map['id'] as int?,
+      imdbId: map['imdb_id'] as String?,
+      originalLanguage: map['original_language'] as String?,
+      originalTitle: map['original_title'] as String?,
+      overview: map['overview'] as String?,
+      popularity: (map['popularity'] as num?)?.toDouble(),
+      posterPath: map['poster_path'] as String?,
+      productionCompanies: map['production_companies'] is List
+          ? (map['production_companies'] as List<dynamic>)
+              .map((item) =>
+                  ProductionCompanyModel.fromMap(item as Map<String, dynamic>))
+              .toList()
           : null,
-      homepage: map['homepage'] != null ? map['homepage'] as String : null,
-      id: map['id'] != null ? map['id'] as int : null,
-      imdbId: map['imdb_id'] != null ? map['imdb_id'] as String : null,
-      originalLanguage: map['original_language'] != null
-          ? map['original_language'] as String
+      productionCountries: map['production_countries'] is List
+          ? (map['production_countries'] as List<dynamic>)
+              .map((item) => ProductionCountriesModel.fromMap(
+                  item as Map<String, dynamic>))
+              .toList()
           : null,
-      originalTitle: map['original_title'] != null
-          ? map['original_title'] as String
+      releaseDate: map['release_date'] as String?,
+      revenue: map['revenue'] as int?,
+      runtime: map['runtime'] as int?,
+      spokenLanguages: map['spoken_languages'] is List
+          ? (map['spoken_languages'] as List<dynamic>)
+              .map((item) =>
+                  SpokenLanguagesModel.fromMap(item as Map<String, dynamic>))
+              .toList()
           : null,
-      overview: map['overview'] != null ? map['overview'] as String : null,
-      popularity:
-          map['popularity'] != null ? map['popularity'] as double : null,
-      posterPath:
-          map['poster_path'] != null ? map['poster_path'] as String : null,
-      productionCompanies: map['production_companies'] != null
-          ? List<ProductionCompanyModel>.from(
-              (map['production_companies'] as List<int>)
-                  .map<ProductionCompanyModel?>(
-                (x) =>
-                    ProductionCompanyModel.fromMap(x as Map<String, dynamic>),
-              ),
-            )
-          : null,
-      productionCountries: map['production_countries'] != null
-          ? List<ProductionCountriesModel>.from(
-              (map['production_countries'] as List<int>)
-                  .map<ProductionCountriesModel?>(
-                (x) =>
-                    ProductionCountriesModel.fromMap(x as Map<String, dynamic>),
-              ),
-            )
-          : null,
-      releaseDate:
-          map['release_date'] != null ? map['release_date'] as String : null,
-      revenue: map['revenue'] != null ? map['revenue'] as int : null,
-      runtime: map['runtime'] != null ? map['runtime'] as int : null,
-      spokenLanguages: map['spoken_languages'] != null
-          ? List<SpokenLanguagesModel>.from(
-              (map['spoken_languages'] as List<int>).map<SpokenLanguagesModel?>(
-                (x) => SpokenLanguagesModel.fromMap(x as Map<String, dynamic>),
-              ),
-            )
-          : null,
-      status: map['status'] != null ? map['status'] as String : null,
-      tagline: map['tagline'] != null ? map['tagline'] as String : null,
-      title: map['title'] != null ? map['title'] as String : null,
-      video: map['video'] != null ? map['video'] as bool : null,
-      voteAverage:
-          map['vote_average'] != null ? map['vote_average'] as double : null,
-      voteCount: map['vote_count'] != null ? map['vote_count'] as int : null,
+      status: map['status'] as String?,
+      tagline: map['tagline'] as String?,
+      title: map['title'] as String?,
+      video: map['video'] as bool?,
+      voteAverage: (map['vote_average'] as num?)?.toDouble(),
+      voteCount: map['vote_count'] as int?,
     );
   }
 

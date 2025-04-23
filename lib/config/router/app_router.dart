@@ -1,5 +1,6 @@
 // ignore_for_file: unused_element
 import 'package:flutter/material.dart';
+import 'package:flutter_tmdb_app/features/details/screens/details.dart';
 import 'package:flutter_tmdb_app/features/favorite/screens/favorites.dart';
 import '../../features/home/screens/home.dart';
 import 'route_names.dart';
@@ -17,6 +18,16 @@ class AppRouter {
         return _slideRoute(
           settings: settings,
           view: const Favorites(),
+        );
+
+      case RouteNames.movieDetail:
+        final args = settings.arguments as Map<String, dynamic>?;
+        final movieId = args?['movieId'] as int?;
+        return _scaleRoute(
+          settings: settings,
+          view: DetailsScreen(
+            movieId: movieId,
+          ),
         );
 
       default:
