@@ -9,6 +9,7 @@ import '../../../config/items/colors/app_colors.dart';
 import '../../../config/widgets/custom_appbar.dart';
 import '../../../config/widgets/movie_grid_view.dart';
 import '../widgets/search_bar_widget.dart';
+import 'package:flutter_tmdb_app/features/favorite/providers/favorites_provider.dart';
 
 // Arama durumunu takip etmek için provider
 final isSearchingProvider = StateProvider<bool>((ref) => false);
@@ -65,6 +66,14 @@ class _HomeState extends ConsumerState<Home> {
     final isSearching = ref.watch(isSearchingProvider);
     final movieState =
         ref.watch(isSearching ? searchMoviesProvider : trendingMoviesProvider);
+    // Favori state'ini izle (sayı için)
+    final favoritesState = ref.watch(favoritesProvider);
+
+    // Favori sayısını al (state yüklendiyse)
+    final favoriteCount = favoritesState.maybeWhen(
+      data: (list) => list.length,
+      orElse: () => 0, // Yüklenirken veya hata durumunda 0
+    );
 
     return Scaffold(
       appBar: PreferredSize(
@@ -77,8 +86,8 @@ class _HomeState extends ConsumerState<Home> {
           title: "Ana Sayfa",
           actions: [
             Badge(
-              label: const Text('3'),
-              isLabelVisible: true,
+              label: Text(favoriteCount.toString()),
+              isLabelVisible: favoriteCount > 0,
               offset: const Offset(-4, 4),
               child: IconButton(
                 icon: SvgPicture.asset(

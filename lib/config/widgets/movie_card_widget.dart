@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tmdb_app/config/extensions/context_extensions.dart';
 import 'package:flutter_tmdb_app/config/items/colors/app_colors.dart';
 import 'package:flutter_tmdb_app/core/models/movie_model.dart';
 import 'package:flutter_tmdb_app/core/extensions/movie_model_extensions.dart';
+import 'package:flutter_tmdb_app/features/favorite/providers/favorites_provider.dart';
 
-class MovieCardWidget extends StatefulWidget {
+class MovieCardWidget extends ConsumerWidget {
   final MovieModel movie;
 
   const MovieCardWidget({
@@ -13,14 +15,14 @@ class MovieCardWidget extends StatefulWidget {
   });
 
   @override
-  State<MovieCardWidget> createState() => _MovieCardWidgetState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final favoritesState = ref.watch(favoritesProvider);
 
-class _MovieCardWidgetState extends State<MovieCardWidget> {
-  bool _isFavorited = false;
+    final isFavorited = favoritesState.maybeWhen(
+      data: (favoriteList) => favoriteList.any((fav) => fav.id == movie.id),
+      orElse: () => false,
+    );
 
-  @override
-  Widget build(BuildContext context) {
     return Card(
       color: Colors.transparent,
       elevation: 0,
@@ -33,7 +35,7 @@ class _MovieCardWidgetState extends State<MovieCardWidget> {
               ClipRRect(
                 borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
                 child: Image.network(
-                  widget.movie.fullPosterPath,
+                  movie.fullPosterPath,
                   fit: BoxFit.cover,
                   height: context.dynamicHeight(0.25),
                   width: double.infinity,
@@ -79,20 +81,17 @@ class _MovieCardWidgetState extends State<MovieCardWidget> {
                   ),
                   child: IconButton(
                     icon: Icon(
-                      _isFavorited ? Icons.favorite : Icons.favorite_border,
-                      color: _isFavorited
+                      isFavorited ? Icons.favorite : Icons.favorite_border,
+                      color: isFavorited
                           ? AppColors.primaryColor
                           : AppColors.whiteColor,
                       size: context.dynamicHeight(0.025),
                     ),
                     onPressed: () {
-                      setState(() {
-                        _isFavorited = !_isFavorited;
-                      });
-                      print("Favori butonu tıklandı! Durum: $_isFavorited");
+                      ref
+                          .read(favoritesProvider.notifier)
+                          .toggleFavorite(movie);
                     },
-                    tooltip:
-                        _isFavorited ? 'Favorilerden Çıkar' : 'Favorilere Ekle',
                     constraints: const BoxConstraints(),
                     padding: EdgeInsets.all(context.dynamicWidth(0.015)),
                   ),
@@ -105,7 +104,7 @@ class _MovieCardWidgetState extends State<MovieCardWidget> {
             padding:
                 EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.01)),
             child: Text(
-              widget.movie.title ?? "Başlık Yok",
+              movie.title ?? "Başlık Yok",
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: context.textTheme.titleMedium?.copyWith(
@@ -126,7 +125,7 @@ class _MovieCardWidgetState extends State<MovieCardWidget> {
                     size: context.dynamicHeight(0.02)),
                 SizedBox(width: context.dynamicWidth(0.01)),
                 Text(
-                  '${widget.movie.voteAverage.toStringAsFixed(1)} (${widget.movie.voteCount ?? 0} reviews)',
+                  '${movie.voteAverage.toStringAsFixed(1)} (${movie.voteCount ?? 0} reviews)',
                   style: context.textTheme.bodySmall?.copyWith(
                     color: AppColors.grayColor,
                     fontSize: context.dynamicHeight(0.015),
@@ -146,7 +145,7 @@ class _MovieCardWidgetState extends State<MovieCardWidget> {
                     size: context.dynamicHeight(0.02)),
                 SizedBox(width: context.dynamicWidth(0.01)),
                 Text(
-                  widget.movie.formattedReleaseDate,
+                  movie.formattedReleaseDate,
                   style: context.textTheme.bodySmall?.copyWith(
                     color: AppColors.grayColor,
                     fontSize: context.dynamicHeight(0.015),
@@ -167,7 +166,7 @@ class _MovieCardWidgetState extends State<MovieCardWidget> {
                 SizedBox(width: context.dynamicWidth(0.01)),
                 Expanded(
                   child: Text(
-                    widget.movie.originalLanguage?.toUpperCase() ?? "-",
+                    movie.originalLanguage?.toUpperCase() ?? "-",
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: context.textTheme.bodySmall?.copyWith(
