@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_tmdb_app/config/extensions/context_extensions.dart';
 import 'package:flutter_tmdb_app/config/utility/enums/image_constants.dart';
 import 'package:flutter_tmdb_app/features/favorite/screens/favorites.dart';
+import 'package:flutter_tmdb_app/features/home/providers/home_provider.dart';
 import '../../../config/items/colors/app_colors.dart';
 import '../../../config/widgets/custom_appbar.dart';
 import '../../../config/widgets/movie_grid_view.dart';
@@ -21,6 +22,8 @@ class Home extends ConsumerStatefulWidget {
 class _HomeState extends ConsumerState<Home> {
   @override
   Widget build(BuildContext context) {
+    final movieState = ref.watch(homeProvider);
+
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(
@@ -59,7 +62,29 @@ class _HomeState extends ConsumerState<Home> {
         children: [
           const SearchBarWidget(),
           Expanded(
-            child: MovieGridView(movies: List.generate(6, (index) => index)),
+            child: movieState.when(
+              data: (movies) {
+                if (movies.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      'Gösterilecek film bulunamadı.',
+                      style: TextStyle(color: AppColors.whiteColor),
+                    ),
+                  );
+                }
+                return MovieGridView(movies: movies);
+              },
+              error: (error, stackTrace) => Center(
+                child: Text(
+                  'Filmler yüklenirken hata oluştu: ${error.toString()}',
+                  style: const TextStyle(color: Colors.red),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              loading: () => const Center(
+                child: CircularProgressIndicator(color: AppColors.primaryColor),
+              ),
+            ),
           ),
         ],
       ),

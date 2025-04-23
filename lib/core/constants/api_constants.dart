@@ -7,11 +7,5 @@ final apiConstantNotifier = ChangeNotifierProvider<ApiConstants>((ref) {
 
 class ApiConstants extends ChangeNotifier {
   ApiConstants();
-  static String baseUrl = "https://api.themoviedb.org/";
-
-  Future<String> setBaseUrl(String url) async {
-    baseUrl = url;
-    notifyListeners();
-    return baseUrl;
-  }
+  static String baseUrl = "https://api.themoviedb.org/3";
 }

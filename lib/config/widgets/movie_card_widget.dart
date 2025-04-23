@@ -4,22 +4,25 @@ import 'package:flutter_tmdb_app/config/items/colors/app_colors.dart';
 
 // Convert to StatefulWidget
 class MovieCardWidget extends StatefulWidget {
+  // Parametreleri required yap, duration ve genres hariç
   final String posterUrl;
   final String title;
   final double rating;
   final int reviewCount;
+  // Duration ve genres şimdilik opsiyonel ve varsayılan değerli kalsın
   final String duration;
   final String genres;
 
   const MovieCardWidget({
     super.key,
-    this.posterUrl =
-        "https://image.tmdb.org/t/p/w500/1E5baAaEse26fej7uHcjOgEE2t2.jpg",
-    this.title = "Shang-Chi and the Legend of the Ten Rings",
-    this.rating = 4.0,
-    this.reviewCount = 982,
-    this.duration = "2 hour 5 minutes",
-    this.genres = "Action, Sci-Fi",
+    // Required parametreler için varsayılan değerleri kaldır
+    required this.posterUrl,
+    required this.title,
+    required this.rating,
+    required this.reviewCount,
+    // Opsiyonel parametreler için varsayılan değerleri koru
+    this.duration = "-", // Daha uygun bir varsayılan
+    this.genres = "-", // Daha uygun bir varsayılan
   });
 
   @override
@@ -44,15 +47,33 @@ class _MovieCardWidgetState extends State<MovieCardWidget> {
               ClipRRect(
                 borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
                 child: Image.network(
-                  widget.posterUrl, // Use widget.posterUrl
+                  widget
+                      .posterUrl, // Artık required ve null değil (veya boş string)
                   fit: BoxFit.cover,
                   height: context.dynamicHeight(0.25),
                   width: double.infinity,
+                  // Hata durumunda placeholder gösterelim
+                  errorBuilder: (context, error, stackTrace) => Container(
+                      height: context.dynamicHeight(0.25),
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: AppColors.darkBackgroundColor.withOpacity(0.8),
+                        borderRadius:
+                            BorderRadius.circular(context.dynamicWidth(0.03)),
+                      ),
+                      child: Icon(Icons.image_not_supported, // Veya Icons.error
+                          color: AppColors.grayColor,
+                          size: context.dynamicHeight(0.05))),
                   loadingBuilder: (context, child, loadingProgress) {
                     if (loadingProgress == null) return child;
                     return Container(
                       height: context.dynamicHeight(0.25),
-                      color: AppColors.darkBackgroundColor.withOpacity(0.8),
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: AppColors.darkBackgroundColor.withOpacity(0.8),
+                        borderRadius:
+                            BorderRadius.circular(context.dynamicWidth(0.03)),
+                      ),
                       child: Center(
                           child: SizedBox(
                               width: context.dynamicWidth(0.1),
@@ -62,12 +83,6 @@ class _MovieCardWidgetState extends State<MovieCardWidget> {
                                   color: AppColors.primaryColor))),
                     );
                   },
-                  errorBuilder: (context, error, stackTrace) => Container(
-                      height: context.dynamicHeight(0.25),
-                      color: AppColors.darkBackgroundColor.withOpacity(0.8),
-                      child: Icon(Icons.error,
-                          color: AppColors.whiteColor,
-                          size: context.dynamicHeight(0.05))),
                 ),
               ),
               Positioned(
@@ -109,7 +124,7 @@ class _MovieCardWidgetState extends State<MovieCardWidget> {
             padding:
                 EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.01)),
             child: Text(
-              widget.title, // Use widget.title
+              widget.title, // Artık required ve null değil
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: context.textTheme.titleMedium?.copyWith(
@@ -130,7 +145,8 @@ class _MovieCardWidgetState extends State<MovieCardWidget> {
                     size: context.dynamicHeight(0.02)),
                 SizedBox(width: context.dynamicWidth(0.01)),
                 Text(
-                  '${widget.rating} (${widget.reviewCount} reviews)', // Use widget.
+                  // Rating ve reviewCount artık required
+                  '${widget.rating.toStringAsFixed(1)} (${widget.reviewCount} reviews)',
                   style: context.textTheme.bodySmall?.copyWith(
                     color: AppColors.grayColor,
                     fontSize: context.dynamicHeight(0.015),

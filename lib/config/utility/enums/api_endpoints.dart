@@ -1,12 +1,11 @@
 import '../../../core/constants/api_constants.dart';
 
 enum ApiEndPoints {
-  //? login
-  login("auth/login"),
+  trendingMoviesDay('trending/movie/day'),
   ;
 
   const ApiEndPoints(this.endPoint);
-  String get getEndpoint => ApiConstants.baseUrl + endPoint;
+  String get getEndpoint => '${ApiConstants.baseUrl}/$endPoint';
 
   final String endPoint;
 }
