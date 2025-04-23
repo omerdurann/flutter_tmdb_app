@@ -7,5 +7,8 @@ final apiConstantNotifier = ChangeNotifierProvider<ApiConstants>((ref) {
 
 class ApiConstants extends ChangeNotifier {
   ApiConstants();
-  static String baseUrl = "https://api.themoviedb.org/3";
+  static const String baseUrl = "https://api.themoviedb.org/3";
+  // Resim için sabitler
+  static const String imageBaseUrl = "https://image.tmdb.org/t/p/";
+  static const String defaultPosterSize = "w500";
 }

@@ -1,28 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tmdb_app/config/extensions/context_extensions.dart';
 import 'package:flutter_tmdb_app/config/items/colors/app_colors.dart';
+import 'package:flutter_tmdb_app/core/models/movie_model.dart';
+import 'package:flutter_tmdb_app/core/extensions/movie_model_extensions.dart';
 
-// Convert to StatefulWidget
 class MovieCardWidget extends StatefulWidget {
-  // Parametreleri required yap, duration ve genres hariç
-  final String posterUrl;
-  final String title;
-  final double rating;
-  final int reviewCount;
-  // Duration ve genres şimdilik opsiyonel ve varsayılan değerli kalsın
-  final String duration;
-  final String genres;
+  final MovieModel movie;
 
   const MovieCardWidget({
     super.key,
-    // Required parametreler için varsayılan değerleri kaldır
-    required this.posterUrl,
-    required this.title,
-    required this.rating,
-    required this.reviewCount,
-    // Opsiyonel parametreler için varsayılan değerleri koru
-    this.duration = "-", // Daha uygun bir varsayılan
-    this.genres = "-", // Daha uygun bir varsayılan
+    required this.movie,
   });
 
   @override
@@ -30,7 +17,6 @@ class MovieCardWidget extends StatefulWidget {
 }
 
 class _MovieCardWidgetState extends State<MovieCardWidget> {
-  // Add state variable for favorite status
   bool _isFavorited = false;
 
   @override
@@ -47,12 +33,10 @@ class _MovieCardWidgetState extends State<MovieCardWidget> {
               ClipRRect(
                 borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
                 child: Image.network(
-                  widget
-                      .posterUrl, // Artık required ve null değil (veya boş string)
+                  widget.movie.fullPosterPath,
                   fit: BoxFit.cover,
                   height: context.dynamicHeight(0.25),
                   width: double.infinity,
-                  // Hata durumunda placeholder gösterelim
                   errorBuilder: (context, error, stackTrace) => Container(
                       height: context.dynamicHeight(0.25),
                       width: double.infinity,
@@ -61,7 +45,7 @@ class _MovieCardWidgetState extends State<MovieCardWidget> {
                         borderRadius:
                             BorderRadius.circular(context.dynamicWidth(0.03)),
                       ),
-                      child: Icon(Icons.image_not_supported, // Veya Icons.error
+                      child: Icon(Icons.image_not_supported,
                           color: AppColors.grayColor,
                           size: context.dynamicHeight(0.05))),
                   loadingBuilder: (context, child, loadingProgress) {
@@ -95,16 +79,13 @@ class _MovieCardWidgetState extends State<MovieCardWidget> {
                   ),
                   child: IconButton(
                     icon: Icon(
-                      // Change icon based on state
                       _isFavorited ? Icons.favorite : Icons.favorite_border,
-                      // Change color based on state
                       color: _isFavorited
                           ? AppColors.primaryColor
                           : AppColors.whiteColor,
                       size: context.dynamicHeight(0.025),
                     ),
                     onPressed: () {
-                      // Toggle state on press
                       setState(() {
                         _isFavorited = !_isFavorited;
                       });
@@ -124,7 +105,7 @@ class _MovieCardWidgetState extends State<MovieCardWidget> {
             padding:
                 EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.01)),
             child: Text(
-              widget.title, // Artık required ve null değil
+              widget.movie.title ?? "Başlık Yok",
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: context.textTheme.titleMedium?.copyWith(
@@ -145,8 +126,7 @@ class _MovieCardWidgetState extends State<MovieCardWidget> {
                     size: context.dynamicHeight(0.02)),
                 SizedBox(width: context.dynamicWidth(0.01)),
                 Text(
-                  // Rating ve reviewCount artık required
-                  '${widget.rating.toStringAsFixed(1)} (${widget.reviewCount} reviews)',
+                  '${widget.movie.voteAverage.toStringAsFixed(1)} (${widget.movie.voteCount ?? 0} reviews)',
                   style: context.textTheme.bodySmall?.copyWith(
                     color: AppColors.grayColor,
                     fontSize: context.dynamicHeight(0.015),
@@ -161,12 +141,12 @@ class _MovieCardWidgetState extends State<MovieCardWidget> {
                 EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.01)),
             child: Row(
               children: [
-                Icon(Icons.access_time,
+                Icon(Icons.calendar_today,
                     color: AppColors.grayColor,
                     size: context.dynamicHeight(0.02)),
                 SizedBox(width: context.dynamicWidth(0.01)),
                 Text(
-                  widget.duration, // Use widget.
+                  widget.movie.formattedReleaseDate,
                   style: context.textTheme.bodySmall?.copyWith(
                     color: AppColors.grayColor,
                     fontSize: context.dynamicHeight(0.015),
@@ -181,13 +161,13 @@ class _MovieCardWidgetState extends State<MovieCardWidget> {
                 EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.01)),
             child: Row(
               children: [
-                Icon(Icons.theaters,
+                Icon(Icons.language,
                     color: AppColors.grayColor,
                     size: context.dynamicHeight(0.02)),
                 SizedBox(width: context.dynamicWidth(0.01)),
                 Expanded(
                   child: Text(
-                    widget.genres, // Use widget.
+                    widget.movie.originalLanguage?.toUpperCase() ?? "-",
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: context.textTheme.bodySmall?.copyWith(
