@@ -2,6 +2,7 @@ import '../../../core/constants/api_constants.dart';
 
 enum ApiEndPoints {
   trendingMoviesDay('trending/movie/day'),
+  searchMovies('search/movie'),
   ;
 
   const ApiEndPoints(this.endPoint);

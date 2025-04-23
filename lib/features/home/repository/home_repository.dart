@@ -42,4 +42,30 @@ class HomeRepository {
       return DataError(message: e.toString());
     }
   }
+
+  Future<DataState<List<MovieModel>>> searchMovies(
+      {required String query, required int page}) async {
+    try {
+      final result = await _apiService.request(
+        method: ApiMethods.get.method,
+        url: ApiEndPoints.searchMovies.getEndpoint,
+        query: {'query': query, 'page': page},
+      );
+
+      if (result.data != null) {
+        final List<dynamic> resultsData = result.data!['results'] as List;
+        final List<MovieModel> movies = resultsData
+            .map((movieJson) =>
+                MovieModel.fromMap(movieJson as Map<String, dynamic>))
+            .toList();
+        return DataSuccess(data: movies);
+      } else {
+        return DataError(message: result.message);
+      }
+    } on DioException catch (e) {
+      return DataError(message: e.message);
+    } catch (e) {
+      return DataError(message: e.toString());
+    }
+  }
 }

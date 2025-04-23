@@ -1,19 +1,106 @@
+import 'dart:async'; // Timer için import eklendi
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tmdb_app/config/extensions/context_extensions.dart';
 import 'package:flutter_tmdb_app/config/items/colors/app_colors.dart';
+import 'package:flutter_tmdb_app/features/home/providers/home_provider.dart';
+import 'package:flutter_tmdb_app/features/home/screens/home.dart'
+    show isSearchingProvider, searchBarHasTextProvider;
 
-class SearchBarWidget extends ConsumerWidget {
+class SearchBarWidget extends ConsumerStatefulWidget {
   const SearchBarWidget({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SearchBarWidget> createState() => _SearchBarWidgetState();
+}
+
+class _SearchBarWidgetState extends ConsumerState<SearchBarWidget> {
+  late final TextEditingController _searchController;
+  Timer? _debounce;
+  final _debounceDuration = const Duration(milliseconds: 500); // 500ms gecikme
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _debounce?.cancel(); // Widget dispose edilirken timer'ı iptal et
+    super.dispose();
+  }
+
+  // Arama işlemini gerçekleştiren metod
+  void _performSearch(String query) {
+    final trimmedQuery = query.trim();
+    // Zaten doğru durumda değilsek state'i güncelle
+    if (trimmedQuery.isNotEmpty && !ref.read(isSearchingProvider)) {
+      ref.read(isSearchingProvider.notifier).state = true;
+    } else if (trimmedQuery.isEmpty && ref.read(isSearchingProvider)) {
+      ref.read(isSearchingProvider.notifier).state = false;
+    }
+    // Provider'a sorguyu gönder (provider boş sorguyu zaten handle ediyor)
+    ref.read(searchMoviesProvider.notifier).searchMovies(trimmedQuery);
+  }
+
+  // Arama alanını ve state'i temizleyen metod
+  void _clearSearch() {
+    _debounce?.cancel(); // Temizlerken bekleyen aramayı iptal et
+    _searchController.clear();
+    ref.read(searchMoviesProvider.notifier).clearSearch();
+    if (ref.read(isSearchingProvider)) {
+      ref.read(isSearchingProvider.notifier).state = false;
+    }
+    // Temizle butonu state'ini güncelle
+    ref.read(searchBarHasTextProvider.notifier).state = false;
+    FocusScope.of(context).unfocus();
+  }
+
+  // onChanged tetiklendiğinde debounce'u yöneten metod
+  void _onSearchChanged(String query) {
+    // Temizle butonu state'ini her değişiklikte güncelle
+    ref.read(searchBarHasTextProvider.notifier).state = query.isNotEmpty;
+
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(_debounceDuration, () {
+      final currentText = _searchController.text.trim();
+      if (currentText.length >= 2) {
+        _performSearch(currentText);
+      } else if (currentText.isEmpty) {
+        if (ref.read(isSearchingProvider)) {
+          // _clearSearch() hem provider'ları hem de arama modunu sıfırlar
+          // Ancak burada _clearSearch'ı çağırmak yerine sadece
+          // arama listesini ve arama modunu sıfırlamak daha doğru olabilir,
+          // çünkü _clearSearch controller'ı da temizler.
+          ref.read(searchMoviesProvider.notifier).clearSearch();
+          ref.read(isSearchingProvider.notifier).state = false;
+          // searchBarHasTextProvider zaten false olmalı (isEmpty kontrolü nedeniyle)
+        }
+      } else {
+        // 1 karakter durumu
+        if (ref.read(isSearchingProvider)) {
+          ref.read(searchMoviesProvider.notifier).clearSearch();
+          // isSearchingProvider'ı burada false yapmıyoruz, kullanıcı devam edebilir.
+        }
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Temizle butonu görünürlüğünü provider'dan izle
+    final showClearButton = ref.watch(searchBarHasTextProvider);
+
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: context.dynamicWidth(0.04),
         vertical: context.dynamicHeight(0.015),
       ),
       child: TextField(
+        controller: _searchController,
         decoration: InputDecoration(
           hintText: 'Film ara...',
           hintStyle: TextStyle(
@@ -29,6 +116,16 @@ class SearchBarWidget extends ConsumerWidget {
               size: context.dynamicHeight(0.025),
             ),
           ),
+          suffixIcon: showClearButton
+              ? IconButton(
+                  icon: Icon(
+                    Icons.clear,
+                    color: AppColors.darkGrayColor,
+                    size: context.dynamicHeight(0.025),
+                  ),
+                  onPressed: _clearSearch,
+                )
+              : null,
           prefixIconConstraints: BoxConstraints(
             minHeight: context.dynamicHeight(0.025),
             minWidth: context.dynamicWidth(0.1),
@@ -58,7 +155,8 @@ class SearchBarWidget extends ConsumerWidget {
             color: AppColors.blackColor,
             fontSize: context.dynamicHeight(0.018)),
         cursorColor: AppColors.primaryColor,
-        // Add controller and onChanged logic later as needed
+        textInputAction: TextInputAction.search,
+        onChanged: _onSearchChanged, // Debounce'lu metod
       ),
     );
   }
