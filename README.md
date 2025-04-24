@@ -43,7 +43,6 @@ Her özellik kendi içinde alt bileşenlere ayrılmıştır:
   <img src="assets/screenshots/detay.png" width="200" alt="Film Detayları">
 </p>
 
-mkdir -p assets/screenshots
 
 
 
