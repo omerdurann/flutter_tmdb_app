@@ -1,3 +1,7 @@
+// ignore: depend_on_referenced_packages
+// ignore_for_file: unused_local_variable
+
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tmdb_app/config/extensions/context_extensions.dart';
@@ -8,18 +12,14 @@ import 'package:flutter_tmdb_app/core/models/movieDetail/production_company_mode
 import 'package:flutter_tmdb_app/core/models/movieDetail/production_countries_model.dart';
 import 'package:flutter_tmdb_app/core/models/movieDetail/spoken_languages_model.dart';
 import 'package:flutter_tmdb_app/features/favorite/providers/favorites_provider.dart';
-import 'package:intl/intl.dart';
 import 'package:flutter_tmdb_app/features/details/providers/details_providers.dart';
 import 'package:flutter_tmdb_app/core/models/movie_model.dart';
-// Import Utils and Notification Model
 import 'package:flutter_tmdb_app/config/utility/utils/utils.dart';
 import 'package:flutter_tmdb_app/config/models/notification_model.dart';
-import 'package:toastification/toastification.dart'; // Import for ToastificationType
+import 'package:toastification/toastification.dart';
 
-// Import the new widgets
 import '../widgets/header_section.dart';
 import '../widgets/details_body_section.dart';
-// Import the custom loading animation
 import '../../../config/widgets/custom_loading_anim.dart';
 
 class DetailsScreen extends ConsumerWidget {
@@ -178,13 +178,11 @@ class DetailsScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Use the public HeaderSection widget
                 HeaderSection(
                   movieDetail: movieDetail,
                   buildImagePlaceholder: _buildImagePlaceholder,
                   buildLoadingPlaceholder: _buildLoadingPlaceholder,
                 ),
-                // Use the public DetailsBodySection widget
                 DetailsBodySection(
                   movieDetail: movieDetail,
                   genres: genres,
