@@ -20,10 +20,11 @@ class TrendingMoviesNotifier
   bool _hasMoreData = true;
 
   TrendingMoviesNotifier(this._repository) : super(const AsyncValue.loading()) {
-    fetchNextPage(); // İlk sayfayı yükle
+    fetchNextPage(); // İlk yükleme
   }
 
   Future<void> fetchNextPage({bool isRefresh = false}) async {
+    // Çoklu eş zamanlı istekleri veya daha fazla veri olmadığında istek yapmayı engelle
     if (_isLoadingMore || (!_hasMoreData && !isRefresh)) return;
 
     _isLoadingMore = true;
@@ -31,9 +32,10 @@ class TrendingMoviesNotifier
     if (isRefresh) {
       _currentPage = 1;
       _hasMoreData = true;
-      state = const AsyncValue.loading();
+      state = const AsyncValue
+          .loading(); // Yenileme sırasında yükleme göstergesini göster
     } else if (state is! AsyncLoading && _currentPage == 1) {
-      // İlk yüklemede loading göstermek için (refresh değilse)
+      // Yüklemeyi sadece ilk istekte göster (sonraki sayfalarda değil)
       state = const AsyncValue.loading();
     }
 
@@ -44,6 +46,7 @@ class TrendingMoviesNotifier
         final newMovies = result.data ?? [];
         if (newMovies.isEmpty) {
           _hasMoreData = false;
+          // İlk sayfa/yenileme boş dönerse, durumu boş veri olarak güncelle
           if (_currentPage == 1 || isRefresh) {
             state = const AsyncValue.data([]);
           }
@@ -57,6 +60,7 @@ class TrendingMoviesNotifier
         }
       } else if (result is DataError) {
         _hasMoreData = false;
+        // Hatayı sadece ilk sayfa/yenileme yüklemesi başarısız olursa göster
         if (_currentPage == 1 || isRefresh) {
           state = AsyncValue.error(
               result.message ?? 'Trend filmler yüklenemedi',
@@ -65,6 +69,7 @@ class TrendingMoviesNotifier
         debugPrint(
             "Error fetching trending movies page $_currentPage: ${result.message}");
       } else {
+        // Beklenmedik DataState türlerini işle
         _hasMoreData = false;
         if (_currentPage == 1 || isRefresh) {
           state = AsyncValue.error(
@@ -105,42 +110,37 @@ class SearchMoviesNotifier extends StateNotifier<AsyncValue<List<MovieModel>>> {
   bool _isLoadingMore = false;
   int _currentPage = 1;
   bool _hasMoreData = true;
-  String _currentQuery = ""; // Mevcut arama sorgusu
-  // Debounce için Timer ekleyebiliriz (isteğe bağlı)
+  String _currentQuery = "";
 
-  // Başlangıçta boş bir liste veya belirli bir başlangıç durumu ile başla
   SearchMoviesNotifier(this._repository) : super(const AsyncValue.data([]));
 
   Future<void> searchMovies(String query) async {
-    // Sorgu değişmediyse veya boşsa bir şey yapma (isteğe bağlı olarak boş sorguda temizlenebilir)
-    if (query.trim() == _currentQuery && state is! AsyncError) return;
+    final trimmedQuery = query.trim();
+    // Daha önce bir hata olmadıkça aynı sorgu için tekrar arama yapmaktan kaçın
+    if (trimmedQuery == _currentQuery && state is! AsyncError) return;
 
-    _currentQuery = query.trim();
+    _currentQuery = trimmedQuery;
     if (_currentQuery.isEmpty) {
-      // Boş sorguda listeyi temizle ve çık
+      // Sorgu boşsa sonuçları temizle ve durumu sıfırla
       state = const AsyncValue.data([]);
-      _currentPage = 1;
-      _hasMoreData = true; // Yeni arama için sıfırla
-      _isLoadingMore = false;
+      _resetPagination();
       return;
     }
 
-    // Yeni arama, durumu sıfırla ve ilk sayfayı yükle
-    _currentPage = 1;
-    _hasMoreData = true;
-    _isLoadingMore = false; // Önceki yüklemeyi iptal et (varsa)
-    state = const AsyncValue.loading(); // Arama başlarken loading göster
+    // Yeni bir arama başlat: sayfalama sıfırla ve yükleme göster
+    _resetPagination();
+    state = const AsyncValue.loading();
     await fetchNextPage();
   }
 
   Future<void> fetchNextPage() async {
-    // Eğer sorgu boşsa veya zaten yükleniyorsa veya daha fazla veri yoksa çık
+    // Sorgu boşsa, zaten yükleniyorsa veya daha fazla veri yoksa çık
     if (_currentQuery.isEmpty || _isLoadingMore || !_hasMoreData) return;
 
     _isLoadingMore = true;
 
-    // Not: Arama sırasında sayfa > 1 iken loading göstermiyoruz,
-    // yeni veriler geldiğinde liste güncellenir.
+    // Not: Yükleme göstergesi yalnızca ilk arama yüklemesinde gösterilir (searchMovies içinde halledilir),
+    // sonraki sayfa yüklemelerinde daha akıcı bir sayfalama deneyimi sağlamak için gösterilmez.
 
     try {
       final result = await _repository.searchMovies(
@@ -150,21 +150,20 @@ class SearchMoviesNotifier extends StateNotifier<AsyncValue<List<MovieModel>>> {
         final newMovies = result.data ?? [];
         if (newMovies.isEmpty) {
           _hasMoreData = false;
-          // İlk sayfa boş geldiyse state'i boş data yap
+          // İlk sayfa boşsa, durumu boş veri olarak ayarla
           if (_currentPage == 1) {
             state = const AsyncValue.data([]);
           }
-          // Sonraki sayfalar boş geldiyse state değişmez, sadece _hasMoreData false olur
+          // Sonraki sayfalar boşsa, duruma dokunma, sadece getirmeyi durdur
         } else {
           _hasMoreData = true;
           final currentMovies = state.value ?? <MovieModel>[];
-          // İlk sayfa yüklemesi (loading durumundan geliyorsa) veya sonraki sayfa eklemesi
           state = AsyncValue.data([...currentMovies, ...newMovies]);
           _currentPage++;
         }
       } else if (result is DataError) {
         _hasMoreData = false;
-        // Sadece ilk sayfa yüklenirken hata gösterilir
+        // Hatayı sadece ilk sayfa yüklemesi başarısız olursa göster
         if (_currentPage == 1) {
           state = AsyncValue.error(
               result.message ?? 'Arama sonuçları yüklenemedi',
@@ -173,6 +172,7 @@ class SearchMoviesNotifier extends StateNotifier<AsyncValue<List<MovieModel>>> {
         debugPrint(
             "Error fetching search results page $_currentPage for query '$_currentQuery': ${result.message}");
       } else {
+        // Beklenmedik DataState türlerini işle
         _hasMoreData = false;
         if (_currentPage == 1) {
           state = AsyncValue.error(
@@ -196,12 +196,17 @@ class SearchMoviesNotifier extends StateNotifier<AsyncValue<List<MovieModel>>> {
     await fetchNextPage();
   }
 
-  // İsteğe bağlı: Aramayı manuel olarak temizlemek için
-  void clearSearch() {
-    _currentQuery = "";
+  // Yeni bir arama için sayfalama durumunu sıfırlayan yardımcı metod
+  void _resetPagination() {
     _currentPage = 1;
     _hasMoreData = true;
     _isLoadingMore = false;
-    state = const AsyncValue.data([]); // Durumu başlangıç haline getir
+  }
+
+  // Mevcut arama sorgusunu ve sonuçlarını temizler
+  void clearSearch() {
+    _currentQuery = "";
+    _resetPagination();
+    state = const AsyncValue.data([]);
   }
 }

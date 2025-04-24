@@ -10,13 +10,10 @@ import '../../../config/widgets/custom_appbar.dart';
 import '../../../config/widgets/movie_grid_view.dart';
 import '../widgets/search_bar_widget.dart';
 import 'package:flutter_tmdb_app/features/favorite/providers/favorites_provider.dart';
-// Import the custom loading animation
 import '../../../config/widgets/custom_loading_anim.dart';
 
-// Arama durumunu takip etmek için provider
 final isSearchingProvider = StateProvider<bool>((ref) => false);
 
-// Arama çubuğunun metin içerip içermediğini takip eden provider (Temizle butonu için)
 final searchBarHasTextProvider = StateProvider<bool>((ref) => false);
 
 class Home extends ConsumerStatefulWidget {
@@ -29,7 +26,6 @@ class Home extends ConsumerStatefulWidget {
 }
 
 class _HomeState extends ConsumerState<Home> {
-  // Sayfalama için ScrollController
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -46,17 +42,13 @@ class _HomeState extends ConsumerState<Home> {
   }
 
   void _onScroll() {
-    // Kullanıcı listenin sonuna yaklaştığında ve daha fazla veri varsa yükle
     if (_scrollController.position.pixels >=
             _scrollController.position.maxScrollExtent * 0.9 &&
         !_scrollController.position.outOfRange) {
       final isSearching = ref.read(isSearchingProvider);
       if (isSearching) {
-        // Arama sonuçları için daha fazla veri yükle
-        // Not: Provider'ın kendi içindeki _isLoadingMore kontrolü tekrar tekrar çağırmayı engeller
         ref.read(searchMoviesProvider.notifier).loadMoreResults();
       } else {
-        // Trend filmler için daha fazla veri yükle
         ref.read(trendingMoviesProvider.notifier).loadMoreData();
       }
     }
@@ -64,17 +56,14 @@ class _HomeState extends ConsumerState<Home> {
 
   @override
   Widget build(BuildContext context) {
-    // Arama durumunu ve ilgili provider'ı izle
     final isSearching = ref.watch(isSearchingProvider);
     final movieState =
         ref.watch(isSearching ? searchMoviesProvider : trendingMoviesProvider);
-    // Favori state'ini izle (sayı için)
     final favoritesState = ref.watch(favoritesProvider);
 
-    // Favori sayısını al (state yüklendiyse)
     final favoriteCount = favoritesState.maybeWhen(
       data: (list) => list.length,
-      orElse: () => 0, // Yüklenirken veya hata durumunda 0
+      orElse: () => 0, 
     );
 
     return Scaffold(
@@ -114,11 +103,9 @@ class _HomeState extends ConsumerState<Home> {
         children: [
           const SearchBarWidget(),
           Expanded(
-            // Sayfalama için NotificationListener yerine ScrollController kullanıldı
             child: movieState.when(
               data: (movies) {
                 if (movies.isEmpty) {
-                  // Arama aktifse ve sonuç yoksa farklı bir mesaj gösterilebilir
                   final message = isSearching
                       ? 'Arama sonucu bulunamadı.'
                       : 'Gösterilecek film bulunamadı.';
@@ -129,7 +116,6 @@ class _HomeState extends ConsumerState<Home> {
                     ),
                   );
                 }
-                // MovieGridView'e ScrollController'ı ver
                 return MovieGridView(
                     movies: movies, scrollController: _scrollController);
               },
@@ -140,9 +126,7 @@ class _HomeState extends ConsumerState<Home> {
                   textAlign: TextAlign.center,
                 ),
               ),
-              // İlk yükleme veya arama yüklemesi için gösterilir
               loading: () => Center(
-                // Replace CircularProgressIndicator with LoadingAnimationWidget
                 child: LoadingAnimationWidget(
                   width: context.dynamicWidth(0.2),
                   height: context.dynamicWidth(0.2),

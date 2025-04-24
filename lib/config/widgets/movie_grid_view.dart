@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tmdb_app/config/extensions/context_extensions.dart';
 import 'package:flutter_tmdb_app/config/widgets/movie_card_widget.dart';
 import 'package:flutter_tmdb_app/core/models/movie_model.dart';
-// import 'package:flutter_tmdb_app/core/extensions/movie_model_extensions.dart'; // Artık burada gerekmeyebilir
 
 class MovieGridView extends ConsumerWidget {
   final List<MovieModel> movies;

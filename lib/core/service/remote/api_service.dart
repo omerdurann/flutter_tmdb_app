@@ -2,35 +2,29 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../resources/data_state.dart';
-// import 'package:flutter_tmdb_app/core/models/movie_model.dart'; // Repository parse edecek
 
-// Provider'ı Provider olarak değiştir
 final apiServiceProvider = Provider<ApiService>((ref) {
   final dio = Dio();
-  // TODO: API Key'i güvenli bir yerden al (örn: environment variables, config file)
   const String apiKey = "8fadd9b769556f455dcba64fec566f18";
   return ApiService(dio, apiKey);
 });
 
 class ApiService {
   final Dio _dio;
-  final String _apiKey; // API anahtarını saklamak için
+  final String _apiKey;
 
-  ApiService(this._dio, this._apiKey); // Constructor'a apiKey ekle
+  ApiService(this._dio, this._apiKey);
 
-  // Dönüş tipi tekrar DataState<Map<String, dynamic>> olacak
   Future<DataState<Map<String, dynamic>>> request({
     required String method,
     required String url,
-    // fromJson parametresi kaldırıldı
-    dynamic data, // POST, PUT için body
-    Map<String, dynamic>? query, // GET için query parametreleri
+    dynamic data,
+    Map<String, dynamic>? query,
   }) async {
     try {
-      // API anahtarını mevcut query parametrelerine ekle
       final Map<String, dynamic> finalQueryParameters = {
-        ...?query, // Mevcut query parametreleri
-        'api_key': _apiKey, // API anahtarını ekle
+        ...?query,
+        'api_key': _apiKey,
       };
 
       final response = await _dio.request(
@@ -41,15 +35,12 @@ class ApiService {
         options: _buildOptions(method),
       );
 
-      // Başarılı Yanıt
       if (response.statusCode == 200) {
-        final responseData =
-            response.data as Map<String, dynamic>; // Yanıtı Map olarak al
+        final responseData = response.data as Map<String, dynamic>;
         final int? page = responseData['page'] as int?;
         final int? totalPages = responseData['total_pages'] as int?;
         final int? totalResults = responseData['total_results'] as int?;
 
-        // Doğrudan Map verisini DataSuccess içinde döndür
         return DataSuccess<Map<String, dynamic>>(
           data: responseData,
           page: page,
@@ -57,11 +48,10 @@ class ApiService {
           totalResults: totalResults,
         );
       } else if (response.statusCode == 204) {
-        // 204 No Content durumu için boş results listesi içeren Map ile DataSuccess döndür
         return const DataSuccess<Map<String, dynamic>>(
           data: {
             'results': [],
-            'page': 1, // veya header'dan okunabilir
+            'page': 1,
             'total_pages': 1,
             'total_results': 0
           },
@@ -70,7 +60,6 @@ class ApiService {
           totalResults: 0,
         );
       } else {
-        // Hata Yanıtı
         String errorMessage = "Bilinmeyen bir API hatası oluştu.";
         int? statusCode = response.statusCode;
         bool? success = false;
@@ -81,7 +70,6 @@ class ApiService {
           success = errorData['success'] as bool? ?? success;
         }
 
-        // Generic tipi Map<String, dynamic> olarak düzeltildi
         return DataError<Map<String, dynamic>>(
           message: errorMessage,
           statusCode: statusCode,
@@ -89,14 +77,10 @@ class ApiService {
         );
       }
     } on DioException catch (e) {
-      // Dio hataları
-      // Generic tipi Map<String, dynamic> olarak düzeltildi
       return DataError<Map<String, dynamic>>(
           message: e.message ?? "Network hatası veya Dio hatası",
           statusCode: e.response?.statusCode);
     } catch (e) {
-      // Diğer beklenmedik hatalar
-      // Generic tipi Map<String, dynamic> olarak düzeltildi
       return DataError<Map<String, dynamic>>(
           message: "Veri işlenirken hata oluştu: ${e.toString()}");
     }

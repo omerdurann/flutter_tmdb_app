@@ -154,13 +154,11 @@ class MovieDetailModel {
     return MovieDetailModel(
       adult: map['adult'] as bool?,
       backdropPath: map['backdrop_path'] as String?,
-      // belongs_to_collection Map veya null olabilir. Map ise içinden 'name' alalım.
       bellogsToCollection: map['belongs_to_collection'] is Map<String, dynamic>
           ? (map['belongs_to_collection'] as Map<String, dynamic>)['name']
               as String?
-          : null, // Map değilse veya null ise null ata
+          : null, 
       budget: map['budget'] as int?,
-      // Listeleri doğrudan map ile parse et, null kontrolleriyle
       genres: map['genres'] is List
           ? (map['genres'] as List<dynamic>)
               .map((item) => GenresModel.fromMap(item as Map<String, dynamic>))

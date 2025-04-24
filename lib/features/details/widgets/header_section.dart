@@ -11,7 +11,7 @@ class HeaderSection extends StatelessWidget {
   final Widget Function(BuildContext, double) buildLoadingPlaceholder;
 
   const HeaderSection({
-    super.key, // Add super.key
+    super.key,
     required this.movieDetail,
     required this.buildImagePlaceholder,
     required this.buildLoadingPlaceholder,
@@ -155,11 +155,8 @@ class HeaderSection extends StatelessWidget {
                             // Create MovieModel here for formatted date
                             id: movieDetail.id,
                             releaseDate: movieDetail.releaseDate,
-                            title:
-                                '', // Provide default or actual title if needed elsewhere
-                            voteAverage:
-                                0, // Provide default or actual rating if needed
-                            // Add other required fields if MovieModel constructor needs them
+                            title: '',
+                            voteAverage: 0,
                             posterPath: movieDetail.posterPath,
                             backdropPath: movieDetail.backdropPath,
                             originalLanguage: movieDetail.originalLanguage,
