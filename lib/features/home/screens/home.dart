@@ -10,6 +10,8 @@ import '../../../config/widgets/custom_appbar.dart';
 import '../../../config/widgets/movie_grid_view.dart';
 import '../widgets/search_bar_widget.dart';
 import 'package:flutter_tmdb_app/features/favorite/providers/favorites_provider.dart';
+// Import the custom loading animation
+import '../../../config/widgets/custom_loading_anim.dart';
 
 // Arama durumunu takip etmek için provider
 final isSearchingProvider = StateProvider<bool>((ref) => false);
@@ -96,7 +98,6 @@ class _HomeState extends ConsumerState<Home> {
                   height: context.dynamicHeight(0.028),
                 ),
                 onPressed: () {
-                  print("Favoriler ikonuna tıklandı!");
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const Favorites()),
@@ -140,8 +141,12 @@ class _HomeState extends ConsumerState<Home> {
                 ),
               ),
               // İlk yükleme veya arama yüklemesi için gösterilir
-              loading: () => const Center(
-                child: CircularProgressIndicator(color: AppColors.primaryColor),
+              loading: () => Center(
+                // Replace CircularProgressIndicator with LoadingAnimationWidget
+                child: LoadingAnimationWidget(
+                  width: context.dynamicWidth(0.2),
+                  height: context.dynamicWidth(0.2),
+                ),
               ),
             ),
           ),

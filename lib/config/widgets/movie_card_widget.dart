@@ -6,6 +6,9 @@ import 'package:flutter_tmdb_app/core/models/movie_model.dart';
 import 'package:flutter_tmdb_app/core/extensions/movie_model_extensions.dart';
 import 'package:flutter_tmdb_app/features/details/screens/details.dart';
 import 'package:flutter_tmdb_app/features/favorite/providers/favorites_provider.dart';
+import 'package:flutter_tmdb_app/config/utility/utils/utils.dart';
+import 'package:flutter_tmdb_app/config/models/notification_model.dart';
+import 'package:toastification/toastification.dart';
 
 class MovieCardWidget extends ConsumerWidget {
   final MovieModel movie;
@@ -102,9 +105,29 @@ class MovieCardWidget extends ConsumerWidget {
                         size: context.dynamicHeight(0.025),
                       ),
                       onPressed: () {
+                        final wasFavorited =
+                            ref.read(favoritesProvider).maybeWhen(
+                                  data: (list) =>
+                                      list.any((fav) => fav.id == movie.id),
+                                  orElse: () => false,
+                                );
+
                         ref
                             .read(favoritesProvider.notifier)
                             .toggleFavorite(movie);
+
+                        final subtitle = wasFavorited
+                            ? '"${movie.title ?? 'Film'}" favorilerden çıkarıldı'
+                            : '"${movie.title ?? 'Film'}" favorilere eklendi';
+
+                        Utils.showFlushbar(
+                          context,
+                          FlushbarNotificationModel(
+                            type: ToastificationType.success,
+                            title: "Başarılı",
+                            subtitle: subtitle,
+                          ),
+                        );
                       },
                       constraints: const BoxConstraints(),
                       padding: EdgeInsets.all(context.dynamicWidth(0.015)),

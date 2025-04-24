@@ -5,6 +5,7 @@ import 'package:flutter_tmdb_app/config/widgets/custom_appbar.dart';
 import 'package:flutter_tmdb_app/config/extensions/context_extensions.dart';
 import 'package:flutter_tmdb_app/config/widgets/movie_grid_view.dart';
 import 'package:flutter_tmdb_app/features/favorite/providers/favorites_provider.dart';
+import '../../../config/widgets/custom_loading_anim.dart';
 
 class Favorites extends ConsumerWidget {
   const Favorites({super.key});
@@ -57,8 +58,11 @@ class Favorites extends ConsumerWidget {
           );
         },
         loading: () {
-          return const Center(
-            child: CircularProgressIndicator(color: AppColors.primaryColor),
+          return Center(
+            child: LoadingAnimationWidget(
+              width: context.dynamicWidth(0.2),
+              height: context.dynamicWidth(0.2),
+            ),
           );
         },
       ),
