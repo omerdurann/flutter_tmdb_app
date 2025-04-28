@@ -22,6 +22,7 @@ class MovieCardWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final favoritesState = ref.watch(favoritesProvider);
 
+    // Mevcut filmin favori listesinde olup olmadığını kontrol et.
     final isFavorited = favoritesState.maybeWhen(
       data: (favoriteList) => favoriteList.any((fav) => fav.id == movie.id),
       orElse: () => false,
@@ -105,6 +106,7 @@ class MovieCardWidget extends ConsumerWidget {
                         size: context.dynamicHeight(0.025),
                       ),
                       onPressed: () {
+                        // Butona basılmadan önceki favori durumunu al.
                         final wasFavorited =
                             ref.read(favoritesProvider).maybeWhen(
                                   data: (list) =>
@@ -112,6 +114,7 @@ class MovieCardWidget extends ConsumerWidget {
                                   orElse: () => false,
                                 );
 
+                        // Favori durumunu değiştir (ekle/çıkar).
                         ref
                             .read(favoritesProvider.notifier)
                             .toggleFavorite(movie);

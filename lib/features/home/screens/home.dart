@@ -12,8 +12,10 @@ import '../widgets/search_bar_widget.dart';
 import 'package:flutter_tmdb_app/features/favorite/providers/favorites_provider.dart';
 import '../../../config/widgets/custom_loading_anim.dart';
 
+/// Arama yapılıp yapılmadığını belirten basit bir StateProvider.
 final isSearchingProvider = StateProvider<bool>((ref) => false);
 
+/// Arama çubuğunda metin olup olmadığını belirten StateProvider.
 final searchBarHasTextProvider = StateProvider<bool>((ref) => false);
 
 class Home extends ConsumerStatefulWidget {
@@ -56,11 +58,15 @@ class _HomeState extends ConsumerState<Home> {
 
   @override
   Widget build(BuildContext context) {
+    // Arama durumunu izle (`ref.watch` çünkü UI bu değişikliğe göre güncellenmeli).
     final isSearching = ref.watch(isSearchingProvider);
+    // Arama durumuna göre gösterilecek film listesinin state'ini izle.
     final movieState =
         ref.watch(isSearching ? searchMoviesProvider : trendingMoviesProvider);
+    // Favori listesinin durumunu izle (favori sayısı için).
     final favoritesState = ref.watch(favoritesProvider);
 
+    // Favori sayısını hesapla (eğer veri yüklendiyse liste uzunluğu, değilse 0).
     final favoriteCount = favoritesState.maybeWhen(
       data: (list) => list.length,
       orElse: () => 0, 
